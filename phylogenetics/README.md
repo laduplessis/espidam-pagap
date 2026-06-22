@@ -75,6 +75,8 @@ We can use the `parsimony()` function to calculate the parsimony score of a tree
 
 To actually find the maximum parsimony tree we can use the function `pratchet()` (parsimony ratchet). This function returns the topology of the most parsimonious tree, but it doesn't have branch lengths, i.e. it only does the post-order traversal. (plot it!). To add branch-lengths we also have to do the pre-order traversal, which we can do using the `acctran()` function. 
 
+**Does the maximum parsimony tree have a better parsimony score than the neighbour-joining tree?**
+
 **Does the maximum parsimony tree support the same conclusion as the neighbour-joining trees?** 
 
 Now plot the tanglegram between the TN93 neighbour-joining tree and the maximum parsimony tree. Note that while the maximum parsimony tree is rooted, it's not rooted on the same sequence (the root seems arbitrary), so you'll need to first reroot it to the same outgroup as the neighbour-joining tree. 
