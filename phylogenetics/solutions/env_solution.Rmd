@@ -6,6 +6,9 @@ date: '`r format(Sys.time(), "Last modified: %d %b %Y")`'
 output: html_document
 params:
   envfile: "../../datasets/hiv/hiv_env.fasta"
+  iqtree_ml: "../../datasets/hiv/hiv_env.fasta.treefile"
+  iqtree_bionj: "../../datasets/hiv/hiv_env.fasta.bionj"
+  
   
 ---
 
@@ -116,7 +119,7 @@ legend("bottomleft", legend=c("Patient", "Victim", "Environment"),
 
 
 # Plot the tanglegram
-cophyloplot(tree_env_NJ_JC_rooted, tree_env_NJ_TN93_rooted, assoc=cbind(tree_env_NJ_JC_rooted$tip.label, tree_env_NJ_TN93_rooted$tip.label), show.tip.label = FALSE, space=100, gap =5, length.line=0.2)
+cophyloplot(tree_env_NJ_JC_rooted, tree_env_NJ_TN93_rooted, assoc=cbind(tree_env_NJ_JC_rooted$tip.label, tree_env_NJ_JC_rooted$tip.label), show.tip.label = FALSE, space=100, gap =5, length.line=0.2)
 
 
 ```
@@ -175,7 +178,7 @@ parsimony tree.
   # Plot the tanglegram
   cophyloplot(tree_env_MP, tree_env_NJ_TN93_rooted,
               assoc=cbind(tree_env_MP$tip.label, 
-                          tree_env_NJ_TN93_rooted$tip.label), 
+                          tree_env_MP$tip.label), 
               show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
 
 ```
@@ -219,11 +222,67 @@ Tanglegram between the NJ and ML trees
   # Plot the tanglegram
   cophyloplot(tree_env_ML_GTR_rooted, tree_env_NJ_TN93_rooted,
               assoc=cbind(tree_env_ML_GTR_rooted$tip.label, 
-                          tree_env_NJ_TN93_rooted$tip.label), 
+                          tree_env_ML_GTR_rooted$tip.label), 
               show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
 
 ```
 
+## IQ-TREE
+
+Read in the maximum-likelihood and bionj trees produced by IQ-TREE and root them.
+
+```{r load-data-iqtree}
+
+  tree_env_ML_IQTREE <- root.phylo(read.tree(params$iqtree_ml), 
+                                       outgroup = "AY156745.1|LA02.EN", 
+                                       resolve.root = TRUE)
+  tree_env_ML_bionj  <- root.phylo(read.tree(params$iqtree_bionj),
+                                       outgroup = "AY156745.1|LA02.EN", 
+                                       resolve.root = TRUE)
+  
+
+```
+
+Plot the maximum-likelihood tree and compare to the R ML tree.
+
+```{r plot-iqtree}
+  colours <- rep("black", length(tree_env_ML_IQTREE$tip.label))
+  colours[match(patient_env, tree_env_ML_IQTREE$tip.label)] <- 'blue'
+  colours[match(victim_env, tree_env_ML_IQTREE$tip.label)] <- 'red'
+    
+  plot.phylo(tree_env_ML_IQTREE, align.tip.label = TRUE, cex=0.7, 
+               tip.color = colours)
+  tiplabels(NA, pch=16, col=colours)
+  legend("bottomleft", legend=c("Patient", "Victim", "Environment"),
+       col=c("blue", "red", "black"), pch=16, cex=0.8)
 
 
+  # Plot the tanglegram
+  cophyloplot(tree_env_ML_GTR_rooted, tree_env_ML_IQTREE,
+              assoc=cbind(tree_env_ML_GTR_rooted$tip.label, 
+                          tree_env_ML_GTR_rooted$tip.label), 
+              show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
 
+```
+
+Plot the bioNJ tree and compare to the R NJ tree.
+
+```{r plot-bionj, eval=FALSE}
+  colours <- rep("black", length(tree_env_ML_bionj$tip.label))
+  colours[match(patient_env, tree_env_ML_bionj$tip.label)] <- 'blue'
+  colours[match(victim_env, tree_env_ML_bionj$tip.label)] <- 'red'
+    
+  plot.phylo(tree_env_ML_bionj, align.tip.label = TRUE, cex=0.7, 
+               tip.color = colours)
+  tiplabels(NA, pch=16, col=colours)
+  legend("bottomleft", legend=c("Patient", "Victim", "Environment"),
+       col=c("blue", "red", "black"), pch=16, cex=0.8)
+
+
+  # Plot the tanglegram
+  cophyloplot(tree_env_NJ_TN93_rooted, tree_env_ML_bionj,
+              assoc=cbind(tree_env_NJ_TN93_rooted$tip.label, 
+                          tree_env_NJ_TN93_rooted$tip.label), 
+              show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
+
+```
