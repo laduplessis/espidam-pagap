@@ -6,6 +6,8 @@ date: '`r format(Sys.time(), "Last modified: %d %b %Y")`'
 output: html_document
 params:
   polfile: "../../datasets/hiv/hiv_pol.fasta"
+  iqtree_ml: "../../datasets/hiv/hiv_pol.fasta.treefile"
+  iqtree_bionj: "../../datasets/hiv/hiv_pol.fasta.bionj"
   
 ---
 
@@ -98,6 +100,8 @@ Now create a colour array to colour patient, victim and community sequences diff
 
 Build the neighbour-joining tree using a Jukes-Cantor model, plot the tree and 
 then plot the tanglegram connecting the Jukes Cantor NJ tree to the TN93 NJ tree.
+Note that the two trees have the same tip labels, but not necessarily in the same 
+order, so we simply use tip labels from one tree to set up the associationo table.
 
 ```{r tanglegram-nj}
 
@@ -116,7 +120,7 @@ legend("bottomleft", legend=c("Patient", "Victim", "Environment"),
 
 
 # Plot the tanglegram
-cophyloplot(tree_pol_NJ_JC_rooted, tree_pol_NJ_TN93_rooted, assoc=cbind(tree_pol_NJ_JC_rooted$tip.label, tree_pol_NJ_TN93_rooted$tip.label), show.tip.label = FALSE, space=100, gap =5, length.line=0.2)
+cophyloplot(tree_pol_NJ_JC_rooted, tree_pol_NJ_TN93_rooted, assoc=cbind(tree_pol_NJ_JC_rooted$tip.label, tree_pol_NJ_JC_rooted$tip.label), show.tip.label = FALSE, space=100, gap =5, length.line=0.2)
 
 
 ```
@@ -180,7 +184,7 @@ parsimony tree.
   # Plot the tanglegram
   cophyloplot(tree_pol_MP_rooted, tree_pol_NJ_TN93_rooted,
               assoc=cbind(tree_pol_MP_rooted$tip.label, 
-                          tree_pol_NJ_TN93_rooted$tip.label), 
+                          tree_pol_MP_rooted$tip.label), 
               show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
 
 ```
@@ -202,7 +206,7 @@ unrooted (check it!) also root it on the same outgroup.
 
 Now plot the ML tree.
 
-```{r plot-mltree}  
+```{r plot-mltree, eval=TRUE}  
 
   colours <- rep("black", length(tree_pol_ML_GTR_rooted$tip.label))
   colours[match(patient_pol, tree_pol_ML_GTR_rooted$tip.label)] <- 'blue'
@@ -219,16 +223,76 @@ Now plot the ML tree.
 
 Tanglegram between the NJ and ML trees
 
-```{r tanglegram-ml}
+```{r tanglegram-ml, eval=TRUE}
 
   # Plot the tanglegram
   cophyloplot(tree_pol_ML_GTR_rooted, tree_pol_NJ_TN93_rooted,
               assoc=cbind(tree_pol_ML_GTR_rooted$tip.label, 
-                          tree_pol_NJ_TN93_rooted$tip.label), 
+                          tree_pol_ML_GTR_rooted$tip.label), 
               show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
 
 ```
 
+## IQ-TREE
+
+Read in the maximum-likelihood and bionj trees produced by IQ-TREE and root them.
+Since IQ-TREE (sensibly) deleted the extra whitespace after the tip labels, we 
+add it back here to more easily match tip labels to past trees.
+
+```{r load-data-iqtree}
+
+  tree_pol_ML_IQTREE <- root.phylo(read.tree(params$iqtree_ml), 
+                                       outgroup = "AY156771.1|LA02.RT", 
+                                       resolve.root = TRUE)
+  tree_pol_ML_bionj  <- root.phylo(read.tree(params$iqtree_bionj),
+                                       outgroup = "AY156771.1|LA02.RT", 
+                                       resolve.root = TRUE)
+  
+  tree_pol_ML_IQTREE$tip.label <- paste0(tree_pol_ML_IQTREE$tip.label, " ")
+  tree_pol_ML_bionj$tip.label  <- paste0(tree_pol_ML_bionj$tip.label, " ")
+
+```
+
+Plot the maximum-likelihood tree and compare to the R ML tree.
+
+```{r plot-iqtree}
+  colours <- rep("black", length(tree_pol_ML_IQTREE$tip.label))
+  colours[match(patient_pol, tree_pol_ML_IQTREE$tip.label)] <- 'blue'
+  colours[match(victim_pol, tree_pol_ML_IQTREE$tip.label)] <- 'red'
+    
+  plot.phylo(tree_pol_ML_IQTREE, align.tip.label = TRUE, cex=0.7, 
+               tip.color = colours)
+  tiplabels(NA, pch=16, col=colours)
+  legend("bottomleft", legend=c("Patient", "Victim", "Environment"),
+       col=c("blue", "red", "black"), pch=16, cex=0.8)
 
 
+  # Plot the tanglegram
+  cophyloplot(tree_pol_ML_GTR_rooted, tree_pol_ML_IQTREE,
+              assoc=cbind(tree_pol_ML_GTR_rooted$tip.label, 
+                          tree_pol_ML_GTR_rooted$tip.label), 
+              show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
 
+```
+
+Plot the bioNJ tree and compare to the R NJ tree.
+
+```{r plot-bionj}
+  colours <- rep("black", length(tree_pol_ML_bionj$tip.label))
+  colours[match(patient_pol, tree_pol_ML_bionj$tip.label)] <- 'blue'
+  colours[match(victim_pol, tree_pol_ML_bionj$tip.label)] <- 'red'
+    
+  plot.phylo(tree_pol_ML_bionj, align.tip.label = TRUE, cex=0.7, 
+               tip.color = colours)
+  tiplabels(NA, pch=16, col=colours)
+  legend("bottomleft", legend=c("Patient", "Victim", "Environment"),
+       col=c("blue", "red", "black"), pch=16, cex=0.8)
+
+
+  # Plot the tanglegram
+  cophyloplot(tree_pol_NJ_TN93_rooted, tree_pol_ML_bionj,
+              assoc=cbind(tree_pol_NJ_TN93_rooted$tip.label, 
+                          tree_pol_NJ_TN93_rooted$tip.label), 
+              show.tip.label = FALSE, space=100, gap =5, length.line=0.1)
+
+```

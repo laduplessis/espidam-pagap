@@ -91,6 +91,29 @@ Once again, the tree is unrooted. Root it and plot it, and plot the tanglegram w
 **Does the maximum-likelihood tree lead to any different conclusions?** 
 
 ---
+
+## IQ-TREE
+
+IQ-TREE is one of the most widely used programs for building maximum-likelihood trees. It also automatically uses ModelFinder to find the best-fitting nucleotide substitution model. 
+
+
+Does it lead to the same conclusions? 
+
+You can display all of the options for IQ-TREE by typing `iqtree -h`. Have a look at it, but don't try to memorise it, there are too many! For this tutorial it's ok to just use the default options to find the best-fitting model and build the maximum likelihood tree. You can do that by running `iqtree3 -s hiv_pol.fasta` (if IQ-TREE version 3 is installed). 
+
+**Which model is the best-fitting substitution model?**
+
+IQ-TREE produces several output files. The file with extension `.treefile` is the maximum-likelihood tree. The file with extension `.bionj` is the bioNJ starting tree. 
+
+Load these files in R, root them (they are unrooted of course) and plot them. Then compare the bioNJ tree to the NJ tree you built in R, and the IQ-TREE maximum-likelihood tree to the R maximum-likelihood tree. 
+
+**Do these trees lead to similar conclusions?** 
+
+
+
+
+
+---
 # Env 
 
 Now repeat all of the above with the env alignment. The alignment is bigger, so it will take considerably longer for the maximum parsimony and maximum-likelihood trees! 
@@ -98,6 +121,7 @@ Now repeat all of the above with the env alignment. The alignment is bigger, so 
 **Does env support the same conclusions as pol?** 
 
 ---
+
 # Extra stuff
 
 ## Prettier trees
